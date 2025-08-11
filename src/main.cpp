@@ -25,23 +25,23 @@ int main() {
         return FAIL;
     }
 
-    Json::Value resroot;
-    resroot["CKA_CLASS"] = "CKO_SECRET_KEY";
-    resroot["CKA_KEY_TYPE"] = "CKK_AES";
-    resroot["CKA_LABEL"] = "key_label";
-    resroot["CKA_TOKEN"] = "false";
-    Json::StreamWriterBuilder abuilder;
-    std::string create_json_file = Json::writeString(abuilder, resroot);
-
-    std::cout << create_json_file << std::endl;
-
     // 1. DB Connect
     std::string pw = util.get_input("user password: ");
     pgdbapi.connect("127.0.0.1", "5432", "test_db", "postgres", pw);
     pw.clear();
 
+    // 2. make json file
+    Json::Value resroot;
+    resroot["tablename"] = "users";
+    Json::Value info_obj;
+    info_obj["username"] = "alice";
+    info_obj["position"] = "ST";
+    resroot["info"] = info_obj;
+    Json::StreamWriterBuilder abuilder;
+    std::string create_json_file = Json::writeString(abuilder, resroot);
 
-
+    // 3. insert DB
+    pgdbapi.db_json_insert_rows(create_json_file);
 
     // x. Close Disconnect
     pgdbapi.disconnect();

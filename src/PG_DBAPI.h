@@ -20,6 +20,9 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include "../lib/json/json.h"
+#include "Util.h"
+#include "Define.h"
 #include "PG_SQLAPI.h"
 
 // Debug print
@@ -97,6 +100,13 @@ public:
      */  
     int db_row_query(const std::string &table_name, const std::vector<std::string> &columns,
       const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size);
+
+    /**
+     * @brief read json file insert db data
+     * @param Jsonfile input file root
+     * @return Success 0, Fail else
+     */
+    int db_json_insert_rows(std::string Jsonfile);
 
 private:
     PgSQLAPI pgsql;

@@ -220,3 +220,63 @@ int PgDBAPI::db_row_query(const std::string &table_name, const std::vector<std::
     PQclear(res);
     return output.size();
 }
+
+
+int PgDBAPI::db_json_insert_rows(std::string Jsonfile){
+
+    // Parsed Json
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(Jsonfile, root)) {
+        DBG_PRINT("JWT Payload Parse fail \n");
+        return FAIL;
+    }
+
+    std::string table_name = root["tablename"].asString();
+
+    std::vector<std::string> columns;
+    std::vector<std::string> values;
+
+    // Check info Key and this key Object?
+    if(root.isMember("info") && root["info"].isObject()){
+        Json::Value info = root["info"];
+        Json::Value::Members members = info.getMemberNames();
+
+        // key and value push back to vector
+        for (const auto& member : members) {
+            columns.push_back(member);
+            Json::Value value = info[member];
+            if(value.isString()){ // string
+                values.push_back(value.asString());
+            }
+            else if(value.isInt()){ // int
+                values.push_back(std::to_string(value.asInt()));
+            }
+            else if (value.isDouble()) {
+                values.push_back(std::to_string(value.asDouble()));
+            } 
+            else if (value.isBool()) {
+                values.push_back(value.asBool() ? "true" : "false");
+            } else {
+                DBG_PRINT("Rows Type Invalid \n");
+                return FAIL;
+            }
+        }
+    } 
+    else {
+        DBG_PRINT("info object not found or invalid \n");
+        return FAIL;
+    }
+    if(!columns.empty() && !values.empty()){
+        int status = db_row_insert(table_name, columns, values);
+        if(status != SUCCESS){
+            DBG_PRINT("Insert DB Fail \n");
+            return FAIL;
+        } else {
+            DBG_PRINT("Insert DB Success \n");
+            return SUCCESS;
+        }
+    }
+    DBG_PRINT("Insert Rows Empty \n");
+    return FAIL;
+}
