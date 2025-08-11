@@ -24,38 +24,20 @@
  * @param password Database user password
  * @return
  */
-PgDBAPI::PgDBAPI(const std::string &host, const std::string &port, const std::string &dbname,
-                           const std::string &user, const std::string &password)
-    : conn(nullptr), connected(false){ // set init status
-    // set conninfo from param
-    conninfo = "host=" + host + " port=" + port + " dbname=" + dbname + " user=" + user + " password=" + password;
-}
+bool PgDBAPI::connect(const std::string host, const std::string port, const std::string dbname,
+                 const std::string user, const std::string password) {
 
-/**
- * @brief DB Class Close
- * @param
- * @return
- */
-PgDBAPI::~PgDBAPI() {
-    if (connected) {
-        PQfinish(conn);
-    }
-}
-
-/**
- * @brief DB Connect
- * @param
- * @return
- */
-bool PgDBAPI::connect() {
+    std::string conninfo = "host=" + host + " port=" + port + " dbname=" + dbname + " user=" + user + " password=" + password;
     conn = PQconnectdb(conninfo.c_str());
 
     if (PQstatus(conn) != CONNECTION_OK) {
         errorMessage = PQerrorMessage(conn);
+
+        DBG_PRINT("PostgreSQL Connected Fail %s \n", errorMessage.c_str());
         connected = false;
         return false;
     }
-
+    DBG_PRINT("PostgreSQL Connected! \n");
     connected = true;
     return true;
 }
@@ -69,26 +51,8 @@ void PgDBAPI::disconnect() {
     if (connected) {
         PQfinish(conn);
         connected = false;
-        std::cout << "PostgreSQL Disconnect!"<< std::endl;
+        DBG_PRINT("PostgreSQL Disconnect! \n");
     }
-}
-
-/**
- * @brief DB Connect check
- * @param
- * @return boolean
- */
-bool PgDBAPI::isConnected() const {
-    return connected;
-}
-
-/**
- * @brief DB errormessage
- * @param
- * @return DB error message
- */  
-const std::string &PgDBAPI::getErrorMessage() const {
-    return errorMessage;
 }
 
 /**

@@ -1,6 +1,6 @@
 # Compiler settings
 CC = g++
-CFLAGS = -Wall -g -L$(JSONDIR)
+CFLAGS = -Wall -g -L$(JSONDIR) -Wl,-rpath,'$$ORIGIN/$(JSONDIR)'
 
 # DEBUG print
 # 0: DEBUG NOT, 1: DEBUG MODE
@@ -25,10 +25,10 @@ SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 # Include directories
-INCLUDES = -I$(SRCDIR) -I$(JSONDIR)
+INCLUDES = -I$(SRCDIR) -I$(JSONDIR) -I/usr/include/postgresql
 
 # Library link
-LIBS = -L/usr/lib/x86_64-linux-gnu -lssl -lcrypto -ljsoncpp -ldl
+LIBS = -L/usr/lib/x86_64-linux-gnu -lssl -lcrypto -ljsoncpp -ldl -lpq
 
 all: $(TARGET)
 

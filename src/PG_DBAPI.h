@@ -22,6 +22,13 @@
 #include <cstring>
 #include "PG_SQLAPI.h"
 
+// Debug print
+#ifdef DEBUG
+#define DBG_PRINT(fmt, ...) printf("[DEBUG] " fmt, ##__VA_ARGS__)
+#else
+#define DBG_PRINT(fmt, ...)
+#endif
+
 class PgDBAPI {
 public:
 
@@ -34,21 +41,8 @@ public:
      * @param password Database user password
      * @return
      */
-    PgDBAPI(const std::string &host, const std::string &port, const std::string &dbname,
-                 const std::string &user, const std::string &password);
-    /**
-     * @brief DB Class Close
-     * @param
-     * @return
-     */
-    ~PgDBAPI();
-
-    /**
-     * @brief DB Connect
-     * @param
-     * @return boolean
-     */
-    bool connect();
+    bool connect(const std::string host, const std::string port, const std::string dbname,
+                 const std::string user, const std::string password);
 
     /**
      * @brief DB disConnect
@@ -56,20 +50,6 @@ public:
      * @return
      */
     void disconnect();
-
-    /**
-     * @brief DB Connect check
-     * @param
-     * @return boolean
-     */
-    bool isConnected() const;
-
-    /**
-     * @brief DB errormessage
-     * @param
-     * @return DB error message
-     */  
-    const std::string &getErrorMessage() const;
 
     /**
      * @brief DB row insert
@@ -119,8 +99,7 @@ public:
       const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size);
 
 private:
-    PgSQLAPI pgsql;  
-    std::string conninfo;
+    PgSQLAPI pgsql;
     PGconn *conn;
     bool connected;
     std::string errorMessage;

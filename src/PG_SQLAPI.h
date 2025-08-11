@@ -22,6 +22,13 @@
   #include <sstream>
   #include <string>
   #include <vector>
+
+  // Debug print
+  #ifdef DEBUG
+  #define DBG_PRINT(fmt, ...) printf("[DEBUG] " fmt, ##__VA_ARGS__)
+  #else
+  #define DBG_PRINT(fmt, ...)
+  #endif
   
   class PgSQLAPI {
   private:
