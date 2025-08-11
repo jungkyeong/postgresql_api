@@ -221,7 +221,11 @@ int PgDBAPI::db_row_query(const std::string &table_name, const std::vector<std::
     return output.size();
 }
 
-
+/**
+ * @brief read json file insert db data
+ * @param Jsonfile input file root
+ * @return Success 0, Fail else
+ */
 int PgDBAPI::db_json_insert_rows(std::string Jsonfile){
 
     // Parsed Json
@@ -246,21 +250,7 @@ int PgDBAPI::db_json_insert_rows(std::string Jsonfile){
         for (const auto& member : members) {
             columns.push_back(member);
             Json::Value value = info[member];
-            if(value.isString()){ // string
-                values.push_back(value.asString());
-            }
-            else if(value.isInt()){ // int
-                values.push_back(std::to_string(value.asInt()));
-            }
-            else if (value.isDouble()) {
-                values.push_back(std::to_string(value.asDouble()));
-            } 
-            else if (value.isBool()) {
-                values.push_back(value.asBool() ? "true" : "false");
-            } else {
-                DBG_PRINT("Rows Type Invalid \n");
-                return FAIL;
-            }
+            values.push_back(value.asString());
         }
     } 
     else {
@@ -279,4 +269,116 @@ int PgDBAPI::db_json_insert_rows(std::string Jsonfile){
     }
     DBG_PRINT("Insert Rows Empty \n");
     return FAIL;
+}
+
+/**
+ * @brief read json file modify db data
+ * @param Jsonfile input file root
+ * @return Success 0, Fail else
+ */
+int PgDBAPI::db_json_modify_rows(std::string Jsonfile){
+
+    // Parsed Json
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(Jsonfile, root)) {
+        DBG_PRINT("JWT Payload Parse fail \n");
+        return FAIL;
+    }
+
+    std::string table_name = root["tablename"].asString();
+    std::string switch_key = root["switch_target_key"].asString();
+    std::string switch_value = root["switch_target_value"].asString();
+
+    std::vector<std::string> columns;
+    std::vector<std::string> values;
+
+    // Check info Key and this key Object?
+    if(root.isMember("info") && root["info"].isObject()){
+        Json::Value info = root["info"];
+        Json::Value::Members members = info.getMemberNames();
+
+        // key and value push back to vector
+        for (const auto& member : members) {
+            columns.push_back(member);
+            Json::Value value = info[member];
+            values.push_back(value.asString());
+        }
+    } 
+    else {
+        DBG_PRINT("info object not found or invalid \n");
+        return FAIL;
+    }
+    if(!columns.empty() && !values.empty()){
+        int status = db_row_modify(table_name, switch_key, switch_value, columns, values);
+        if(status != SUCCESS){
+            DBG_PRINT("Modify DB Fail \n");
+            return FAIL;
+        } else {
+            DBG_PRINT("Modify DB Success \n");
+            return SUCCESS;
+        }
+    }
+    DBG_PRINT("Modify Rows Empty \n");
+    return FAIL;
+}
+
+/**
+ * @brief read json file remove db data
+ * @param Jsonfile input file root
+ * @return Success 0, Fail else
+ */
+int PgDBAPI::db_json_remove_rows(std::string Jsonfile){
+
+    // Parsed Json
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(Jsonfile, root)) {
+        DBG_PRINT("JWT Payload Parse fail \n");
+        return FAIL;
+    }
+
+    std::string table_name = root["tablename"].asString();
+
+    std::vector<std::string> columns;
+    std::vector<std::string> values;
+
+    // Check info Key and this key Object?
+    if(root.isMember("info") && root["info"].isObject()){
+        Json::Value info = root["info"];
+        Json::Value::Members members = info.getMemberNames();
+
+        // key and value push back to vector
+        for (const auto& member : members) {
+            columns.push_back(member);
+            Json::Value value = info[member];
+            values.push_back(value.asString());
+        }
+    } 
+    else {
+        DBG_PRINT("info object not found or invalid \n");
+        return FAIL;
+    }
+    if(!columns.empty() && !values.empty()){
+        int status = db_row_remove(table_name, columns, values);
+        if(status != SUCCESS){
+            DBG_PRINT("Remove DB Fail \n");
+            return FAIL;
+        } else {
+            DBG_PRINT("Remove DB Success \n");
+            return SUCCESS;
+        }
+    }
+    DBG_PRINT("Remove Rows Empty \n");
+    return FAIL;
+}
+
+/**
+ * @brief read json file search db data
+ * @param Jsonfile input file root
+ * @return Success 0, Fail else
+ */
+int db_json_search_rows(std::string Jsonfile){
+
+    return SUCCESS;
 }

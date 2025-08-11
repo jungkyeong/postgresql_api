@@ -1,6 +1,6 @@
 # Compiler settings
 CC = g++
-CFLAGS = -Wall -g -L$(JSONDIR) -Wl,-rpath,'$$ORIGIN/$(JSONDIR)'
+CFLAGS = -Wall -g -I/usr/include/jsoncpp # -L$(JSONDIR) -Wl,-rpath,'$$ORIGIN/$(JSONDIR)'
 
 # DEBUG print
 # 0: DEBUG NOT, 1: DEBUG MODE

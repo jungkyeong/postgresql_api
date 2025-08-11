@@ -108,6 +108,27 @@ public:
      */
     int db_json_insert_rows(std::string Jsonfile);
 
+    /**
+     * @brief read json file modify db data
+     * @param Jsonfile input file root
+     * @return Success 0, Fail else
+     */
+    int db_json_modify_rows(std::string Jsonfile);
+
+    /**
+     * @brief read json file remove db data
+     * @param Jsonfile input file root
+     * @return Success 0, Fail else
+     */
+    int db_json_remove_rows(std::string Jsonfile);
+
+    /**
+     * @brief read json file search db data
+     * @param Jsonfile input file root
+     * @return Success 0, Fail else
+     */
+    int db_json_search_rows(std::string Jsonfile);
+
 private:
     PgSQLAPI pgsql;
     PGconn *conn;

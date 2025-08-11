@@ -17,20 +17,22 @@ PgDBAPI pgdbapi;
 int main() {
 
 
-    // Json lib
+    // Json lib (if use SO file) 
+    /*
     void* LibHandle = NULL;
     LibHandle = dlopen(JSON_LIB, RTLD_NOW);
     if(!LibHandle){
         DBG_PRINT("Failed to load JSON library: %s\n", dlerror());
         return FAIL;
     }
+    */
 
     // 1. DB Connect
     std::string pw = util.get_input("user password: ");
     pgdbapi.connect("127.0.0.1", "5432", "test_db", "postgres", pw);
     pw.clear();
 
-    // 2. make json file
+    // make json file
     Json::Value resroot;
     resroot["tablename"] = "users";
     Json::Value info_obj;
@@ -40,12 +42,51 @@ int main() {
     Json::StreamWriterBuilder abuilder;
     std::string create_json_file = Json::writeString(abuilder, resroot);
 
-    // 3. insert DB
+    // 2. insert rows
     pgdbapi.db_json_insert_rows(create_json_file);
+
+    // make json file
+    Json::Value resroot_a;
+    resroot_a["tablename"] = "users";
+    resroot_a["switch_target_key"] = "username";
+    resroot_a["switch_target_value"] = "alice";
+    Json::Value info_obj_a;
+    info_obj_a["username"] = "Bob";
+    info_obj_a["position"] = "ST";
+    resroot_a["info"] = info_obj_a;
+    Json::StreamWriterBuilder abuilder_a;
+    std::string modify_json_file = Json::writeString(abuilder_a, resroot_a);
+
+    // 3. modify rows
+    pgdbapi.db_json_modify_rows(modify_json_file);
+
+    // make json file
+    Json::Value resroot_c;
+    resroot_c["tablename"] = "users";
+    Json::Value info_obj_c;
+    info_obj_c["position"] = "ST";
+    resroot_c["info"] = info_obj_c;
+    Json::StreamWriterBuilder abuilder_c;
+    std::string search_json_file = Json::writeString(abuilder_c, resroot_c);
+
+    // 4. search rows
+    pgdbapi.db_json_search_rows(search_json_file);
+
+    // make json file
+    Json::Value resroot_d;
+    resroot_d["tablename"] = "users";
+    Json::Value info_obj_d;
+    info_obj_d["position"] = "ST";
+    resroot_d["info"] = info_obj_d;
+    Json::StreamWriterBuilder abuilder_d;
+    std::string remove_json_file = Json::writeString(abuilder_d, resroot_d);
+
+    // 5. remove rows
+    pgdbapi.db_json_remove_rows(remove_json_file);
 
     // x. Close Disconnect
     pgdbapi.disconnect();
-    dlclose(LibHandle);
+    //dlclose(LibHandle);
 
     return 0;
 }
