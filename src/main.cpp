@@ -63,14 +63,20 @@ int main() {
     // make json file
     Json::Value resroot_c;
     resroot_c["tablename"] = "users";
+    resroot_c["wild_card"] = "true"; // wild card search
     Json::Value info_obj_c;
-    info_obj_c["position"] = "ST";
+    info_obj_c["position"] = "S";
     resroot_c["info"] = info_obj_c;
     Json::StreamWriterBuilder abuilder_c;
     std::string search_json_file = Json::writeString(abuilder_c, resroot_c);
 
     // 4. search rows
-    pgdbapi.db_json_search_rows(search_json_file);
+    char recv_buffer[4096];
+    int data_len = pgdbapi.db_json_search_rows(search_json_file, recv_buffer, 4096);
+
+    printf("Data len: %d \n", data_len);
+    printf("Data : %s \n", recv_buffer);
+
 
     // make json file
     Json::Value resroot_d;
@@ -82,7 +88,7 @@ int main() {
     std::string remove_json_file = Json::writeString(abuilder_d, resroot_d);
 
     // 5. remove rows
-    pgdbapi.db_json_remove_rows(remove_json_file);
+    //pgdbapi.db_json_remove_rows(remove_json_file);
 
     // x. Close Disconnect
     pgdbapi.disconnect();

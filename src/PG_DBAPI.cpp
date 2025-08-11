@@ -169,7 +169,7 @@ int PgDBAPI::db_row_modify(const std::string &table_name,
  * @param table_name DB query target table name
  * @param columns query label name
  * @param values query value
- * @param type_arr whild card search type, use: 1, unused: 0
+ * @param type_arr c
  * @param recv_buffer query output buffer
  * @param max_buf_size max_buffer_size 
  * @return Success buffer size, Fail -1
@@ -376,9 +376,66 @@ int PgDBAPI::db_json_remove_rows(std::string Jsonfile){
 /**
  * @brief read json file search db data
  * @param Jsonfile input file root
- * @return Success 0, Fail else
+ * @param recv_buf response message
+ * @param max_buf_size buffer max length
+ * @return Success Data len, Fail else
  */
-int db_json_search_rows(std::string Jsonfile){
+int PgDBAPI::db_json_search_rows(std::string Jsonfile, char* recv_buf, size_t max_buf_size){
 
-    return SUCCESS;
+    // Parsed Json
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(Jsonfile, root)) {
+        DBG_PRINT("JWT Payload Parse fail \n");
+        return FAIL;
+    }
+
+    std::string table_name = root["tablename"].asString();
+    std::string wild_card = root["wild_card"].asString();
+
+    std::vector<std::string> columns;
+    std::vector<std::string> values;
+    std::vector<int> type_arr;
+    int type_arr_status =0;
+
+    if(wild_card =="true"){
+        type_arr_status =1;
+    }
+
+    // Check info Key and this key Object?
+    if(root.isMember("info") && root["info"].isObject()){
+        Json::Value info = root["info"];
+        Json::Value::Members members = info.getMemberNames();
+
+        // key and value push back to vector
+        for (const auto& member : members) {
+            columns.push_back(member);
+            Json::Value value = info[member];
+            // need wild card add string front and end '%'
+            if(wild_card =="true"){
+                values.push_back("%"+value.asString()+"%");
+            } else {
+               values.push_back(value.asString()); 
+            }
+            type_arr.push_back(type_arr_status);
+        }
+    } 
+    else {
+        DBG_PRINT("info object not found or invalid \n");
+        return FAIL;
+    }
+
+    if(!columns.empty() && !values.empty()){
+        int data_len = db_row_query(table_name, columns, values, type_arr, recv_buf, max_buf_size);
+        if(data_len == FAIL){
+            DBG_PRINT("Search DB Fail \n");
+            return FAIL;
+        } else {
+            DBG_PRINT("Search DB Success \n");
+            return data_len;
+        }
+    }
+
+    DBG_PRINT("Search Rows Empty \n");
+    return FAIL;
 }

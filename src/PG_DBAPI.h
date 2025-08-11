@@ -125,9 +125,11 @@ public:
     /**
      * @brief read json file search db data
      * @param Jsonfile input file root
-     * @return Success 0, Fail else
+     * @param recv_buf response message
+     * @param max_buf_size buffer max length
+     * @return Success Data len, Fail else
      */
-    int db_json_search_rows(std::string Jsonfile);
+    int db_json_search_rows(std::string Jsonfile, char* recv_buf, size_t max_buf_size);
 
 private:
     PgSQLAPI pgsql;
