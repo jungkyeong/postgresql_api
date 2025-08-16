@@ -169,21 +169,29 @@ int PgDBAPI::db_row_modify(const std::string &table_name,
  * @param table_name DB query target table name
  * @param columns query label name
  * @param values query value
- * @param type_arr c
+ * @param type_arr whild card search type, use: 1, unused: 0
  * @param recv_buffer query output buffer
- * @param max_buf_size max_buffer_size 
+ * @param max_buf_size max_buffer_size
+ * @param count number of rows to fetch, if not search: 0
+ * @param offset starting row number, if not search: 0
  * @return Success buffer size, Fail -1
  */  
 int PgDBAPI::db_row_query(const std::string &table_name, const std::vector<std::string> &columns,
-    const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size){
-    
+    const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size, int count, int offset){
+
     // make sql command
-    std::string sql = pgsql.sql_row_query(table_name, columns, values, type_arr);
+    std::string sql = pgsql.sql_row_query(table_name, columns, values, type_arr, count, offset);
 
     // vector array casting change const char*
     std::vector<const char*> paramValues;
     for (const auto &val : values) {
         paramValues.push_back(val.c_str());
+    }
+    if(count > 0){
+        paramValues.push_back(std::to_string(count).c_str());
+    }
+    if(offset > 0){
+        paramValues.push_back(std::to_string(offset).c_str());
     }
 
     // not binary mode only use text
@@ -392,6 +400,8 @@ int PgDBAPI::db_json_search_rows(std::string Jsonfile, char* recv_buf, size_t ma
 
     std::string table_name = root["tablename"].asString();
     std::string wild_card = root["wild_card"].asString();
+    int offset = std::atoi(root["offset"].asString().c_str());
+    int count = std::atoi(root["count"].asString().c_str());
 
     std::vector<std::string> columns;
     std::vector<std::string> values;
@@ -426,7 +436,7 @@ int PgDBAPI::db_json_search_rows(std::string Jsonfile, char* recv_buf, size_t ma
     }
 
     if(!columns.empty() && !values.empty()){
-        int data_len = db_row_query(table_name, columns, values, type_arr, recv_buf, max_buf_size);
+        int data_len = db_row_query(table_name, columns, values, type_arr, recv_buf, max_buf_size, count, offset);
         if(data_len == FAIL){
             DBG_PRINT("Search DB Fail \n");
             return FAIL;

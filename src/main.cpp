@@ -64,6 +64,8 @@ int main() {
     Json::Value resroot_c;
     resroot_c["tablename"] = "users";
     resroot_c["wild_card"] = "true"; // wild card search
+    resroot_c["offset"] = "1";
+    resroot_c["count"] = "1";
     Json::Value info_obj_c;
     info_obj_c["position"] = "S";
     resroot_c["info"] = info_obj_c;

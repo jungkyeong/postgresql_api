@@ -76,11 +76,13 @@
      * @param table_name table name
      * @param columns remove target columns
      * @param values remove columns value
-     * @return SQL command ex) SELECT * FROM test_table WHERE test_string LIKE $1 AND test_int = $2;
+     * @param count number of rows to fetch, if not search: 0
+     * @param offset starting row number, if not search: 0
+     * @return SQL command ex) SELECT * FROM test_table WHERE test_string LIKE $1 AND test_int = $2 LIMIT $3 OFFSET $4;
      */
     std::string sql_row_query(const std::string &table_name, 
       const std::vector<std::string> &columns, 
-      const std::vector<std::string> &values, const std::vector<int> &type_arr);
+      const std::vector<std::string> &values, const std::vector<int> &type_arr, int count, int offset);
   
   };
   

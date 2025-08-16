@@ -95,11 +95,13 @@ public:
      * @param values query value
      * @param type_arr whild card search type, use: 1, unused: 0
      * @param recv_buffer query output buffer
-     * @param max_buf_size max_buffer_size 
+     * @param max_buf_size max_buffer_size
+     * @param count number of rows to fetch, if not search: 0
+     * @param offset starting row number, if not search: 0
      * @return Success buffer size, Fail -1
      */  
     int db_row_query(const std::string &table_name, const std::vector<std::string> &columns,
-      const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size);
+      const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size, int count, int offset);
 
     /**
      * @brief read json file insert db data

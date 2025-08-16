@@ -101,11 +101,13 @@ std::string PgSQLAPI::sql_row_insert(const std::string &table_name,
 * @param columns remove target columns
 * @param values remove columns value
 * @param type_arr wild card handler string:1, int or timestamp: 0
-* @return SQL command ex) SELECT * FROM test_table WHERE test_string LIKE $1 AND test_int = $2;
+* @param count number of rows to fetch, if not search: 0
+* @param offset starting row number, if not search: 0
+* @return SQL command ex) SELECT * FROM test_table WHERE test_string LIKE $1 AND test_int = $2 LIMIT $3 OFFSET $4;
 */
 std::string PgSQLAPI::sql_row_query(const std::string &table_name, 
     const std::vector<std::string> &columns, 
-    const std::vector<std::string> &values, const std::vector<int> &type_arr){
+    const std::vector<std::string> &values, const std::vector<int> &type_arr, int count, int offset){
 
     std::string sql = "SELECT * FROM " + table_name + " WHERE ";
     
@@ -119,6 +121,12 @@ std::string PgSQLAPI::sql_row_query(const std::string &table_name,
         if (i < columns.size() - 1) {
             sql += " AND ";
         }
+    }
+    if(count > 0){ // add count
+        sql += " LIMIT $" + std::to_string(columns.size() + 1);
+    }
+    if(offset > 0){ // add offset
+        sql += " OFFSET $" + std::to_string(columns.size() + 2);
     }
     
     sql += ";";
