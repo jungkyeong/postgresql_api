@@ -98,10 +98,14 @@ public:
      * @param max_buf_size max_buffer_size
      * @param count number of rows to fetch, if not search: 0
      * @param offset starting row number, if not search: 0
+     * @param date_label date check label, "" not query
+     * @param start_date start date, "" not query
+     * @param end_date end date,  "" not query
      * @return Success buffer size, Fail -1
      */  
     int db_row_query(const std::string &table_name, const std::vector<std::string> &columns,
-      const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size, int count, int offset);
+      const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size, int count, int offset,
+      const std::string &date_label, const std::string &start_date, const std::string &end_date);
 
     /**
      * @brief read json file insert db data

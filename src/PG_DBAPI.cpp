@@ -174,18 +174,26 @@ int PgDBAPI::db_row_modify(const std::string &table_name,
  * @param max_buf_size max_buffer_size
  * @param count number of rows to fetch, if not search: 0
  * @param offset starting row number, if not search: 0
+ * @param date_label date check label, "" not query
+ * @param start_date start date, "" not query
+ * @param end_date end date, "" not query
  * @return Success buffer size, Fail -1
  */  
 int PgDBAPI::db_row_query(const std::string &table_name, const std::vector<std::string> &columns,
-    const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size, int count, int offset){
+    const std::vector<std::string> &values, const std::vector<int> &type_arr, char* recv_buf, size_t max_buf_size, int count, int offset,
+    const std::string &date_label, const std::string &start_date, const std::string &end_date){
 
     // make sql command
-    std::string sql = pgsql.sql_row_query(table_name, columns, values, type_arr, count, offset);
+    std::string sql = pgsql.sql_row_query(table_name, columns, values, type_arr, count, offset, date_label, start_date, end_date);
 
     // vector array casting change const char*
     std::vector<const char*> paramValues;
     for (const auto &val : values) {
         paramValues.push_back(val.c_str());
+    }
+    if(start_date != "" && end_date != ""){
+        paramValues.push_back(start_date.c_str());
+        paramValues.push_back(end_date.c_str());
     }
     if(count > 0){
         paramValues.push_back(std::to_string(count).c_str());
@@ -403,6 +411,11 @@ int PgDBAPI::db_json_search_rows(std::string Jsonfile, char* recv_buf, size_t ma
     int offset = std::atoi(root["offset"].asString().c_str());
     int count = std::atoi(root["count"].asString().c_str());
 
+    // date string
+    std::string date_label = root["date_label"].asString();
+    std::string start_date = root["start_date"].asString();
+    std::string end_date = root["end_date"].asString();
+
     std::vector<std::string> columns;
     std::vector<std::string> values;
     std::vector<int> type_arr;
@@ -436,7 +449,7 @@ int PgDBAPI::db_json_search_rows(std::string Jsonfile, char* recv_buf, size_t ma
     }
 
     if(!columns.empty() && !values.empty()){
-        int data_len = db_row_query(table_name, columns, values, type_arr, recv_buf, max_buf_size, count, offset);
+        int data_len = db_row_query(table_name, columns, values, type_arr, recv_buf, max_buf_size, count, offset, date_label, start_date, end_date);
         if(data_len == FAIL){
             DBG_PRINT("Search DB Fail \n");
             return FAIL;

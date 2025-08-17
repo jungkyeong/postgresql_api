@@ -95,7 +95,7 @@ std::string PgSQLAPI::sql_row_insert(const std::string &table_name,
             return sql;       
     }
 
- /**
+/**
 * @brief sql maker query
 * @param table_name table name
 * @param columns remove target columns
@@ -107,26 +107,37 @@ std::string PgSQLAPI::sql_row_insert(const std::string &table_name,
 */
 std::string PgSQLAPI::sql_row_query(const std::string &table_name, 
     const std::vector<std::string> &columns, 
-    const std::vector<std::string> &values, const std::vector<int> &type_arr, int count, int offset){
+    const std::vector<std::string> &values, const std::vector<int> &type_arr, int count, int offset, 
+    const std::string &date_label, const std::string &start_date, const std::string &end_date){
 
     std::string sql = "SELECT * FROM " + table_name + " WHERE ";
+    int param_index = 1;
     
     for (size_t i = 0; i < columns.size(); i++) {
         if(type_arr[i]==1){
-            sql += columns[i] + " LIKE $" + std::to_string(i + 1); // string -> whild card search
+            sql += columns[i] + " LIKE $" + std::to_string(param_index++); // string -> whild card search
         }
         else{
-            sql += columns[i] + " = $" + std::to_string(i + 1); // not string(int, timestamp)
+            sql += columns[i] + " = $" + std::to_string(param_index++); // not string(int, timestamp)
         }
         if (i < columns.size() - 1) {
             sql += " AND ";
         }
     }
+    // check time
+    if(date_label !="" && start_date !="" && end_date !=""){
+        if(columns.size() > 0){
+            sql += " AND ";
+        }
+        int start_param = param_index++;
+        int end_param = param_index++;
+        sql += date_label + " BETWEEN $" + std::to_string(start_param) + " AND $" + std::to_string(end_param);
+    }
     if(count > 0){ // add count
-        sql += " LIMIT $" + std::to_string(columns.size() + 1);
+        sql += " LIMIT $" + std::to_string(param_index++);
     }
     if(offset > 0){ // add offset
-        sql += " OFFSET $" + std::to_string(columns.size() + 2);
+        sql += " OFFSET $" + std::to_string(param_index++);
     }
     
     sql += ";";

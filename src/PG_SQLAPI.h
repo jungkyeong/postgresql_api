@@ -78,11 +78,16 @@
      * @param values remove columns value
      * @param count number of rows to fetch, if not search: 0
      * @param offset starting row number, if not search: 0
-     * @return SQL command ex) SELECT * FROM test_table WHERE test_string LIKE $1 AND test_int = $2 LIMIT $3 OFFSET $4;
+     * @param date_label date check label, "" not query
+     * @param start_date start date, "" not query
+     * @param end_date end date,  "" not query
+     * @return SQL command ex) 
+       SELECT * FROM test_table WHERE test_string LIKE $1 AND test_int = $2 AND date_label BETWEEN 'start_date' AND 'end_date' LIMIT $3 OFFSET $4;
      */
     std::string sql_row_query(const std::string &table_name, 
       const std::vector<std::string> &columns, 
-      const std::vector<std::string> &values, const std::vector<int> &type_arr, int count, int offset);
+      const std::vector<std::string> &values, const std::vector<int> &type_arr, int count, int offset, 
+      const std::string &date_label, const std::string &start_date, const std::string &end_date);
   
   };
   

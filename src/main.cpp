@@ -64,8 +64,11 @@ int main() {
     Json::Value resroot_c;
     resroot_c["tablename"] = "users";
     resroot_c["wild_card"] = "true"; // wild card search
-    resroot_c["offset"] = "1";
-    resroot_c["count"] = "1";
+    resroot_c["offset"] = "2";
+    resroot_c["count"] = "2";
+    resroot_c["date_label"] = "created_at";
+    resroot_c["start_date"] = "2025-08-11 00:00:00";
+    resroot_c["end_date"] = "2025-08-20 00:00:00";
     Json::Value info_obj_c;
     info_obj_c["position"] = "S";
     resroot_c["info"] = info_obj_c;
@@ -90,7 +93,7 @@ int main() {
     std::string remove_json_file = Json::writeString(abuilder_d, resroot_d);
 
     // 5. remove rows
-    //pgdbapi.db_json_remove_rows(remove_json_file);
+    pgdbapi.db_json_remove_rows(remove_json_file);
 
     // x. Close Disconnect
     pgdbapi.disconnect();
